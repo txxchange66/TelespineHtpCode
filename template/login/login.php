@@ -35,7 +35,7 @@ padding:0px 15px 45px 0px;
 </style>
 <!-- End --><div id="container">
 	<div id="header">
-		<div id='line'><span id='wxlogo' style="float:right;"></span>
+		<div id='line'><span id='' style="float:right;"></span>
                                 <div id='txlogo' style='float:left; padding-left:55px;' ></div>
                                   <div style='clear:both;'></div>
                              <div id='subheader' style='float:right; padding-right:55px;' >
