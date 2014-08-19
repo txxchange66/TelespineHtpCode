@@ -1,0 +1,14 @@
+﻿<flash_project name="TxXchange" version="1">
+    <project_folder name="com" expanded="true">
+        <project_folder name="classes" expanded="true">
+            <project_folder name="core" expanded="true">
+                <project_file path="./com/classes/core/Utility.as" filetype="as" />
+            </project_folder>
+        </project_folder>
+    </project_folder>
+    <project_file path="./Main.as" filetype="as" />
+    <project_file path="./plan_creator.fla" filetype="fla" profile="" def_file="true" />
+    <project_file path="./plan_creator.swf" filetype="swf" />
+    <project_file path="./Treatment.as" filetype="as" />
+    <project_file path="./paging.as" filetype="as" />
+</flash_project>

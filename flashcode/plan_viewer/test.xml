@@ -1,0 +1,28 @@
+<plan id="204542">
+<treatment id="529" name="treatment0203 editted" order="1">
+<image order="1" src="asset/images/treatment/529/pic1.jpg"/>
+<image order="2" src="asset/images/treatment/529/pic2.jpg"/>
+<video src="asset/images/treatment/221/video.flv"/>
+
+<instruction sets="7" reps="9" hold="0" lrb="BOTH">treatment0203
+test treatment 1234</instruction>
+<benefit>benifitsbenifitsbenifitsbenifitsbenifitsbenifitsbenifitsbenifitsbenifitsbenifitsbenifitsbenifits </benefit>
+</treatment>
+<treatment id="221" name="treatment on 18 dec 08 edited" order="2">
+<video src="asset/images/treatment/221/rohit_nitin show_172.flv"/>
+<instruction sets="10" reps="20" hold="30"  lrb="LEFT">treatment on 18 dec 08 edited</instruction>
+</treatment>
+<treatment id="221" name="treatment on 18 dec 08 edited" order="2">
+<image order="1" src="asset/images/treatment/221/pic1.jpg"/>
+<image order="2" src="asset/images/treatment/221/pic2.jpg"/>
+<instruction sets="10" reps="20" hold="30"  lrb="LEFT">treatment on 18 dec 08 edited</instruction>
+</treatment>
+<treatment id="221" name="treatment on 18 dec 08 edited" order="2">
+<image order="1" src="asset/images/treatment/221/pic1.jpg"/>
+<image order="2" src="asset/images/treatment/221/pic2.jpg"/>
+<instruction sets="10" reps="20" hold="30"  lrb="LEFT">treatment on 18 dec 08 edited</instruction>
+</treatment>
+
+
+<article name="article march0209" href="http://google.com"/>
+</plan>

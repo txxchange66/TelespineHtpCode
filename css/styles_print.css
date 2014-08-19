@@ -1,0 +1,60 @@
+#container {
+    /*width: 905px;*/
+    width: 100%;
+    padding-top: 0;
+    margin-top: 0;
+}
+.head {
+    width: 900px;
+    /* background: url('../images/headBG.gif') repeat-x; */
+}
+.head .headLogo {
+    padding-left: 25px;
+}
+.foot {
+    page-break-after: always;
+    
+    
+}
+.treatments {
+    padding-left: 25px;
+}
+/* Instruction text */
+.treatments p {
+    font-size: 16px;
+    margin: 25px;
+}
+
+/* class for print */
+
+.plan_top{
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:9px;
+    color:#6a6a6a;
+    
+}
+
+.plan{
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:11px;
+    color:#000000;
+    padding-top:8px;
+}
+.heading{
+    padding-left:15px;
+    padding-top:12px;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:11px;
+    font-weight:bold;
+    color:#000000;
+}
+.text{
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:11px;
+    color:#000000;
+    font-weight:normal;
+    padding-top:7px;
+    text-align:justify;
+}
+
+

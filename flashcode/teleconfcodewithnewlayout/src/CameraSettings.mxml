@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="553" height="256" styleName="Panel" title="Settings">
+	<mx:Metadata>
+		[Event(name="APPLY_VIDEO_SETTINGS", type="flash.events.Event")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import com.salesxpo.caboodle.model.ApplicationModelLocator;
+			
+			import flash.media.SoundCodec;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			[Bindable]
+			public var selectedCamera:Camera ;
+			[Bindable]
+			public var selectedMic:Microphone;
+			 
+			public var isAbletoStream:Boolean
+			[Bindable]
+			private var _appModel:ApplicationModelLocator = ApplicationModelLocator.getInstance();
+			
+			public static const APPLY_VIDEO_SETTINGS:String = "APPLY_VIDEO_SETTINGS";
+			
+			[Bindable]
+			public var _width : int;
+			[Bindable]
+			public var _height : int;
+			
+			private var micFlag:Boolean=false;
+			private var timer : Timer;
+			private var Audiotimer : Timer;
+			public function initCams():void
+			{
+				try
+				{
+					selectedCamera = Camera.getCamera();
+					selectedCamera.addEventListener(StatusEvent.STATUS,statusactivityHandler);
+					if (selectedCamera == null) 
+					{
+						//Alert.show("You do not have any cameras attached.")
+						return;
+					}
+					else
+					{
+						
+					}
+				}
+				catch(e : Error)
+				{
+					
+					//Alert.show("Camera may not attached or in use by another application.Please check your Camera.")
+					return;
+				}
+				try
+				{
+					try
+					{
+						selectedMic = Microphone.getEnhancedMicrophone();
+						if(selectedMic != null)
+						{
+							var options : MicrophoneEnhancedOptions = new MicrophoneEnhancedOptions();
+							options.mode = MicrophoneEnhancedMode.FULL_DUPLEX;
+							options.autoGain = false;
+							options.echoPath = 128;
+							options.nonLinearProcessing = true;
+							selectedMic.enhancedOptions = options;
+						}
+					}
+					catch(err : Error)
+					{
+						selectedMic = Microphone.getMicrophone();
+					}
+					
+					//Audiotimer.repeatCount=0;
+					
+					if (selectedMic == null) 
+					{  var microphoneActivity:String=_appModel.activityURL+"6";
+						sendToURL(new URLRequest(microphoneActivity));
+						Alert.show("You do not have any Microphone attached to your system.")
+						return;
+					}
+					else
+					{
+						selectedMic.addEventListener(SampleDataEvent.SAMPLE_DATA,sampleHandler);
+						selectedMic.addEventListener(ActivityEvent.ACTIVITY,audioActivityHandler);
+						selectedMic.addEventListener(StatusEvent.STATUS,audioStatusHandler);
+						Audiotimer = new Timer(3000,1);
+						//Audiotimer.repeatCount=0;
+						Audiotimer.addEventListener(TimerEvent.TIMER,onAudioTimer);
+					}
+					
+					
+				}
+				catch(e : Error)
+				{ 
+					Alert.show("You do not have any Microphone attached to your system.")
+					return;
+				}
+				doSecurityChecks();
+			}
+			
+			private function onMicStatus(event:StatusEvent):void
+			{
+				if (event.code == "Microphone.Muted")
+				{
+					Alert.show("Microphone access was denied.");
+				}
+			}
+			
+			protected function onCamActive(p_evt:Event):void
+			{
+				timer.stop();
+				timer.removeEventListener(TimerEvent.TIMER,onTimer);
+				//selectedCamera.displayUserBars = true;
+				//trace(p_evt.toString());
+			}
+			
+			protected function onTimer(p_evt:TimerEvent):void
+			{
+				Alert.show("Camera is busy");
+				//Set a different camera here
+				//webCamPub.cameraNameIndex = index 
+			}
+			
+			
+			
+			private function statusactivityHandler(event:StatusEvent):void {
+				trace(event.code);
+				
+				if(event.code=="Camera.Muted"){
+					var cameraDeny:String=_appModel.activityURL+"2";
+					sendToURL(new URLRequest(cameraDeny));
+					
+				}else{
+					var cameraAllow:String=_appModel.activityURL+"1";
+					sendToURL(new URLRequest(cameraAllow));
+				}
+				/* {            		
+					Alert.show("Camera may not attached or in use by another application .Please check your Camera.");
+				} */
+				//selectedCamera.removeEventListener(ActivityEvent.ACTIVITY, activityHandler);
+			}
+			
+			private function doSecurityChecks():void
+			{
+				
+				//selectedCamera = Camera.getCamera();//Camera.getCamera( camList.selectedIndex.toString());
+				if(selectedCamera!=null)
+				{
+					if(selectedCamera.muted)
+					{
+						
+						/*var alert:Alert  = Alert.show("To enable the use of the camera,\n"                         
+						+ "When the Flash Player Settings dialog appears,\n"
+						+ "make sure to select the Allow radio button\n" 
+						+ "to grant access to your camera and select Remember checkbox to always allow this site to use your camera.","Security Information",4,null,onAlertOK);
+						*/
+					}	
+					else
+					{					 	
+						isAbletoStream=true;
+						applyPrefs();
+					}
+					isAbletoStream=true;
+					applyPrefs();
+				}
+				else
+				{
+					Alert.show("Camera may not attached or in use by another application .Please check your Camera.");
+				}
+			}
+			
+			private function onAlertOK(event:CloseEvent):void
+			{
+				if(event.detail == Alert.OK)
+				{
+					selectedCamera.addEventListener(StatusEvent.STATUS, statusHandler);
+					//Security.showSettings(SecurityPanel.PRIVACY);
+				}
+			}
+			
+			private function statusHandler(event:StatusEvent):void 
+			{trace(event.code);
+				if (event.code == "Camera.Unmuted")
+				{	               
+					selectedCamera.removeEventListener(StatusEvent.STATUS, statusHandler);
+					isAbletoStream =true;
+					applyPrefs();
+				}
+				else
+				{
+					isAbletoStream =false;
+					Alert.show("Access to camera is denied by you.");
+				}
+			}
+			var _testPassed:Boolean=false;
+			var _testTimedOut:Boolean=false;
+			var _activityLevels:Array=[];
+			
+			private function applyPrefs():void
+			{
+				if(isAbletoStream)
+				{
+					if(chkOptimized.selected && chkOptimizedBandwidth.selected)
+					{
+						
+					}
+					else
+					{            	
+						//selectedCamera  =null;
+						//selectedCamera = Camera.getCamera();// Camera.getCamera( camList.selectedIndex.toString());
+						if(selectedCamera == null)
+						{
+							Alert.show("Camera may not attached or in use by another application .Please check your Camera.")
+							return;
+						}
+						
+						
+						/* selectedCamera.addEventListener(ActivityEvent.ACTIVITY,onCamActive);						
+						timer = new Timer(2000,1);
+						timer.addEventListener(TimerEvent.TIMER,onTimer);
+						timer.start();
+						*/
+						
+						selectedCamera.setQuality( chkOptimizedBandwidth.selected?0:Number(baNdWidth.selectedItem.data),chkOptimized.selected?0:Number(qualitySlider.value));
+						//	selectedCamera.setQuality( Number(baNdWidth.selectedItem.data),Number(qualitySlider.value));
+					}
+					
+					var size1:ArrayCollection = new ArrayCollection( videoSize.selectedItem.toString().split("x"));
+					this._width = new Number( size1.getItemAt(0));
+					this._height = new Number(size1.getItemAt(1));
+					parentApplication.onSetHeightWidth();
+					selectedCamera.setMode( Number( size1.getItemAt(0)),Number( size1.getItemAt(1)), Number( frameRate1.selectedItem.toString()),false);
+					//selectedCamera.setLoopback(true);
+					//selectedMic = Microphone.getMicrophone();//Microphone.getMicrophone( micList.selectedIndex)
+					
+					if (selectedMic != null) 
+					{
+						selectedMic.setUseEchoSuppression(true);
+						selectedMic.gain = 70;
+						selectedMic.rate = 22;
+						selectedMic.setLoopBack(false);
+						
+						selectedMic.setSilenceLevel(1);
+						//	trace("selectedMic.activityLevel"+selectedMic.activityLevel +"muted :"+selectedMic.useEchoSuppression)
+						//_checkActivity();
+						
+					}
+					else
+					{ 
+						Alert.show("You do not have any Microphone attached to your system.");
+						return;
+					}
+					
+					dispatchEvent(new Event("APPLY_VIDEO_SETTINGS"));
+				}
+				else
+				{
+					Alert.show("Your security settings for flash player is preventing camera object to initialize.");
+				}
+			}
+			
+			private function audioStatusHandler(e:StatusEvent):void{
+				Audiotimer.start();
+				trace("status: level=" + selectedMic.silenceLevel + ", code=" + selectedMic.activityLevel);
+			}
+			private function audioActivityHandler(e:ActivityEvent):void{
+				micFlag=true;
+				Audiotimer.stop();
+				Audiotimer.removeEventListener(TimerEvent.TIMER,onAudioTimer);
+				
+			/* 	Audiotimer.start();
+				Audiotimer.addEventListener(TimerEvent.TIMER,onAudioTimer); */
+				
+				trace("selectedMic.activityLevel"+selectedMic.activityLevel +"muted :"+selectedMic.useEchoSuppression)
+			}
+			
+			private function sampleHandler(e:SampleDataEvent):void{
+				micFlag=true;
+			}
+			protected function onAudioTimer(e:TimerEvent):void
+			{  
+				if(micFlag==false){
+					
+					var microphoneActivity:String=_appModel.activityURL+"6";
+					sendToURL(new URLRequest(microphoneActivity));
+					
+					Alert.show("You do not have any Microphone attached to your system.");
+					Audiotimer.stop();
+					//Audiotimer.removeEventListener(TimerEvent.TIMER,onAudioTimer);
+					
+					
+				} /* else{
+				micFlag=false;	
+				
+				//Audiotimer.addEventListener(TimerEvent.TIMER,onAudioTimer);
+				//Audiotimer.start();
+			//
+				} 	 */
+			}
+			
+	
+			
+			private function setCameraPref():void
+			{
+				doSecurityChecks();
+				
+				
+				
+			}
+			
+			private function setQuality(evt:Event):void
+			{
+				if(qualitySlider.value < 40  )
+				{
+					lblQuality.text =  "Low"	;
+				}
+				else if (qualitySlider.value >40 && qualitySlider.value <70)
+				{
+					lblQuality.text ="Mid";
+				}
+				else if(qualitySlider.value >70)
+				{
+					lblQuality.text ="High";
+				} 
+			}
+			
+		]]>
+	</mx:Script>
+	
+	
+	<mx:HBox paddingTop="5" paddingLeft="5" width="100%" >
+		
+		
+		<mx:Label text="Camera" color="#000000"/>
+		<mx:ComboBox id="camList" styleName="ComboBox" dataProvider="{Camera.names}"   width="200">
+		</mx:ComboBox>
+		<mx:Button label="Refresh" click="{camList.dataProvider = Camera.names}"/>
+		<mx:Button label="Cancel" click="FlexGlobals.topLevelApplication.tw.visible = false" />
+	</mx:HBox>
+	
+	<mx:HBox  paddingTop="5" paddingLeft="5" width="100%">
+		
+		
+		<mx:Label text="Mic" width="50" color="#000000"/>
+		<mx:ComboBox styleName="ComboBox" id="micList"  dataProvider="{Microphone.names}"   width="200">
+		</mx:ComboBox>
+		<mx:Button label="Refresh" click="{micList.dataProvider = Microphone.names}"/>
+		<mx:Button label="Apply Changes" click="setCameraPref()"  />
+	</mx:HBox>
+	
+	
+	
+	<mx:HBox> 
+		
+		<mx:Label text="Select Video Frame Rate"/>
+		<mx:ComboBox id="frameRate1"  selectedIndex="3">
+			<mx:String>1</mx:String>
+			<mx:String>4</mx:String>
+			<mx:String>8</mx:String>
+			<mx:String>15</mx:String>
+			<mx:String>30</mx:String>
+			<mx:String>40</mx:String>
+			<mx:String>50</mx:String>
+			<mx:String>60</mx:String>
+		</mx:ComboBox>
+	</mx:HBox>
+	<mx:HBox>
+		
+		<mx:Label text="Select Video Size"/>
+		<mx:ComboBox id="videoSize"  selectedIndex="2">
+			<mx:String>160x120</mx:String>
+			<mx:String>176x144</mx:String>
+			<mx:String>320x240</mx:String>
+			<mx:String>352x288</mx:String>
+			<mx:String>640x480</mx:String>
+			<mx:String>720x576</mx:String>	        
+			<mx:String>1024x768</mx:String>
+			<mx:String>1280x720</mx:String>
+			<mx:String>1920x1080</mx:String>
+		</mx:ComboBox>
+	</mx:HBox>
+	<mx:HBox>
+		
+		
+		<mx:Label text="Select Your Internet Bandwidth"/>
+		<mx:ComboBox id="baNdWidth"  enabled="false" labelField="label" selectedIndex="0" >	
+			<mx:Object label="32 kbps" data="32768" />    
+			<mx:Object label="64 kbps" data="65536" />     	
+			<mx:Object label="128 kbps" data="131072" />
+			<mx:Object label="256 kbps" data="262144" />
+			<mx:Object label="350 kbps" data="358400" />
+			<mx:Object label="512 kbps" data="524288" />
+			<mx:Object label="800 kbps" data="819200" />
+			<mx:Object label="1 mbps" data="1048576" />
+			<mx:Object label="1.5 mbps" data="1572864" />
+			<mx:Object label="2 mbps" data="2097152" />				
+		</mx:ComboBox>
+		<mx:CheckBox label="Optimized Bandwidth" selected="true" id="chkOptimizedBandwidth" change="{ baNdWidth.enabled = !chkOptimizedBandwidth.selected}"/>
+	</mx:HBox>
+	<mx:HBox>
+		
+		<mx:Label text="Select Stream Quality"/>
+		<mx:HSlider width="113" minimum="1" snapInterval="1" maximum="100" enabled="true" value="80" allowTrackClick="false" liveDragging="true"  change="setQuality(event)" id="qualitySlider"/>
+		<mx:Label id="lblQuality" width="32"/>
+		<mx:CheckBox label="Optimized Quality"  id="chkOptimized"  selected="false" change="{qualitySlider.enabled = !chkOptimized.selected}" />
+	</mx:HBox>
+	
+	
+	
+</mx:TitleWindow>

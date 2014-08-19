@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="235" height="140"   creationComplete="init(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			public var herelinkurl:String="";
+			public var popupText:String="";
+			public var heretext:String="";
+			
+			public function troubleshoot_closeHandler(event: MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				PopUpManager.removePopUp(this);
+				//FlexGlobals.topLevelApplication.troubleclicked="false;
+			}
+			
+			public function init(event:FlexEvent):void
+			{
+				//Alert.show("PopUpManager");
+				
+				herelinkurl=Application.application.parameters.hereurl;
+				popupText="If you are having trouble with your video or audio, take these steps:\n" +
+					"1. Make sure you are sharing your video\n" +
+					"2. Click the refresh arrow button\n" +
+					"3. Download the latest version of Flash\n";
+				
+				popuptext.text=popupText;
+				PopUpManager.centerPopUp(this);
+			}
+			public function herebtnPopUp_clickHandler(event:MouseEvent):void{
+				navigateToURL(new URLRequest(herelinkurl));
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<s:BorderContainer  cornerRadius="10" width="235"   height="140"   >
+		<mx:Text   id="popuptext"   width="225" textAlign="left" left="5" top="17"  >			
+		</mx:Text>
+		<mx:HBox left="10" bottom="16" width="211" height="19" verticalAlign="top" horizontalGap="1">
+			<s:Label text="   Player -" />
+			<s:Label id="herebtnPopUp" x="62" y="106"  buttonMode="true"  textDecoration="underline"
+					 click="herebtnPopUp_clickHandler(event)" color="blue" 
+					 mouseChildren="false"  text="here" useHandCursor="true"/>
+		</mx:HBox>
+		
+		<mx:Image x="213" y="9" id="closesharepopup"  buttonMode="true"   source="@Embed(source='../src/assets/closeBtn.png')" click="troubleshoot_closeHandler(event)" useHandCursor="true"  mouseChildren="false"/>
+	</s:BorderContainer>
+	
+</s:Group>

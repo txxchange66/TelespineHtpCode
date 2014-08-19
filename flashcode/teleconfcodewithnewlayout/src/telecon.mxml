@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" initialize="{Security.allowDomain('*')}"
+				xmlns:ns1="*" preloader="com.pathf.preloaders.PathfinderCustomPreloader"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				width="100%" height="100%" backgroundColor="#cccccc" 
+				creationComplete="application1_creationCompleteHandler()" layout="absolute">
+	<!--  backgroundImage="@Embed(source='assets/tele_conf_skin.jpg')" backgroundSize="100%" -->
+	<mx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx"; 
+		
+		Alert{
+			color : #0f3177;
+			title-style-name : "alertTitle";
+			header-height:19;
+			border-thickness: 1;
+			drop-shadow-enabled: true;
+			drop-shadow-color :#d1ddf7;
+			background-color: #ffffff;
+			corner-radius :6;
+			border-style :solid;
+			header-colors : #90a4d1, #5970a0;
+			footer-colors : #9db6d9, #ffffff;
+			border-color : #5970a0;
+			
+		}
+		
+		.alertTitle{
+			font-family :Verdana;
+			font-size :10;
+			font-weight :bold;
+			text-align :left;
+			color :#ffffff;
+			
+		} 
+		.butonStartVideo
+		{ 
+			disabled-skin: Embed(source="assets/btn_share_disabled.png", scaleGridLeft="5", scaleGridTop="4", scaleGridRight="87", scaleGridBottom="11");
+			down-skin: Embed(source="assets/btn_share.png", scaleGridLeft="5", scaleGridTop="4", scaleGridRight="87", scaleGridBottom="11");
+			over-skin: Embed(source="assets/btn_share.png", scaleGridLeft="5", scaleGridTop="4", scaleGridRight="87", scaleGridBottom="11");
+			up-skin: Embed(source="assets/btn_share.png", scaleGridLeft="5", scaleGridTop="4", scaleGridRight="87", scaleGridBottom="11");
+		}
+		
+		.butonStopVideo
+		{
+			disabled-skin: Embed(source="assets/btn_share_disabled.png", scaleGridLeft="5", scaleGridTop="4", scaleGridRight="87", scaleGridBottom="11");
+			down-skin: Embed(source="assets/btn_stop_share.png", scaleGridLeft="5", scaleGridTop="4", scaleGridRight="87", scaleGridBottom="11");
+			over-skin: Embed(source="assets/btn_stop_share.png", scaleGridLeft="5", scaleGridTop="4", scaleGridRight="87", scaleGridBottom="11");
+			up-skin: Embed(source="assets/btn_stop_share.png", scaleGridLeft="5", scaleGridTop="4", scaleGridRight="87", scaleGridBottom="11");
+		}
+		
+		.butonMute
+		{
+			disabled-skin: Embed(source="assets/voice_on.png");
+			down-skin: Embed(source="assets/voice_on.png");
+			over-skin: Embed(source="assets/voice_on.png");
+			up-skin: Embed(source="assets/voice_on.png");
+		}
+		
+		.butonUnMute
+		{
+			disabled-skin: Embed(source="assets/voice_off.png");
+			down-skin: Embed(source="assets/voice_off.png");
+			over-skin: Embed(source="assets/voice_off.png");
+			up-skin: Embed(source="assets/voice_off.png");
+		}
+		
+		.volumeSlider{
+			trackSkin: Embed(source="assets/slide_bg.png");
+			thumbUpSkin: Embed(source="assets/btn_slide.png");
+			thumbOverSkin: Embed(source="assets/btn_slide.png");
+			thumbDownSkin: Embed(source="assets/btn_slide.png");
+		}
+	</mx:Style>
+	<mx:Script>
+		<![CDATA[
+			
+			import com.TroubleshootPopup;
+			import com.salesxpo.caboodle.model.ApplicationModelLocator;
+			
+			import flash.net.navigateToURL;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.core.IFlexDisplayObject;
+			import mx.events.ChildExistenceChangedEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			
+			/* private var tw:CameraSettings = new CameraSettings(); */
+			[Bindable]
+			private var activeNum:Number;
+			[Bindable]
+			public var refreshClicked : Boolean=false;
+			[Bindable]
+			public var localSname : String;
+			[Bindable]
+			public var liveSname : String;
+			
+			[Bindable]
+			public var userType : String;
+			
+			[Bindable]
+			private var _appModel:ApplicationModelLocator = ApplicationModelLocator.getInstance();
+			[Bindable]
+			public var bordercon:BorderContainer= new BorderContainer();;
+			[Bindable]
+			public var dynamicurl:String;
+			[Bindable]
+			public var troubleFlag:String="";
+			[Bindable]
+			public var troubleclicked:String="false";
+			
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				tw.visible = true;
+				tw.removeEventListener(CameraSettings.APPLY_VIDEO_SETTINGS, onPublishClicked);
+				tw.addEventListener(CameraSettings.APPLY_VIDEO_SETTINGS, onPublishClicked);
+			}
+			
+			private var vPub : VideoChatPublisher;
+			private function onPublishClicked(evt:Event):void
+			{
+				try
+				{
+					if(evt == null)
+						tw.initCams();
+					vPub = new VideoChatPublisher(this.localSname, tw.selectedCamera, tw.selectedMic);
+					tw.visible = false;
+					verifyandpublish();
+					//
+				}
+				catch(e : Error)
+				{
+					Alert.show(e.message);
+				}
+			}
+			
+			protected function verifyandpublish():void
+			{
+				
+				if( doPublishMyCam())
+				{
+					
+					btnShareVideo.enabled = true;
+					
+					
+				}
+			}
+			private var video:Video;
+			private var _camera:Camera;
+			private var _waitingActivation:Boolean; 
+			private var timer:Timer;
+			private var busyFlag:Boolean=false;
+			private function doPublishMyCam():Boolean
+			{
+				try
+				{
+					video =  vPub.getVideoObject();
+					video.clear();
+					_camera=vPub.getCameraObejct();
+					
+					
+					//  _camera.addEventListener(StatusEvent.STATUS, onCamActive);						
+					/* timerBusyCam = new Timer(1000);
+					timerBusyCam.addEventListener(TimerEvent.TIMER,onTimerBusyCam);
+					timerBusyCam.start(); */
+					
+					
+					
+					
+					
+					//
+					
+					
+					//_camera.setMode(_cameraWidth, _cameraHeight, DEFAULT_CAMERA_FPS)
+					
+					//set timer to ensure that the camera activates.  If not, it might be in use by another application
+					//uservideoStream.addEventListener(Event.ADDED,ChildAdded);
+					timer = new Timer(4000,1);
+				
+					timer.addEventListener(TimerEvent.TIMER_COMPLETE,activationTimeout);
+					
+					//timer = new Timer(4000,1);
+					//timer.addEventListener(TimerEvent.TIMER_COMPLETE,activationTimeoutforBusy);
+					
+					
+					video.attachCamera(_camera);
+					video.width = 128;
+					video.height = 98;
+					
+					uservideoStream.addChild(video);
+					
+					
+					_camera.addEventListener(ActivityEvent.ACTIVITY, activityHandler);
+					
+					_camera.addEventListener(StatusEvent.STATUS, cameraBusyStatus);
+					//video.addEventListener(Event.ADDED,cameraBusyStatus);
+					
+					
+					
+					//this.removeChild(bordercon);
+					return true;
+					
+				}
+				catch(e:Error)
+				{
+					//JSCallBackHandler.getInstance().AlertUser(e.message); // this is for error in net connection and will call 3 or more times this function
+					
+				}
+				return false;
+			}
+			
+			private function cameraBusyStatus(event:StatusEvent):void{
+				timer.start();					
+			}
+		
+			
+			private function ChildAdded(e:Event):void{
+				
+			}
+			private function activityHandler(e:ActivityEvent):void {
+			
+			/* 	Alert.show("ACTIVITY HANDLER:- "+"quality"+_camera.quality+"fps"+_camera.fps+"currentFPS"+_camera.currentFPS+"motionLevel"
+					+_camera.motionLevel+"bandwidth"+_camera.bandwidth+"activityLevel"+_camera.activityLevel+"keyFrameInterval"
+					+_camera.keyFrameInterval+"motionLevel"+_camera.motionLevel+"motionTimeout"+_camera.motionTimeout);	 */
+				if(busyFlag==false && _camera.activityLevel==100){
+				busyFlag=true;				
+				timer.stop();				
+				timer.removeEventListener(TimerEvent.TIMER_COMPLETE,activationTimeout);
+				}
+				//activeNum=_camera.activityLevel;
+				//}
+				
+			}
+			
+			protected function activationTimeout(e:TimerEvent):void{
+			/* 	Alert.show("TIMER:- "+"quality"+_camera.quality+"fps"+_camera.fps+"currentFPS"+_camera.currentFPS+"motionLevel"+
+					_camera.motionLevel+"bandwidth"+_camera.bandwidth+"activityLevel"+_camera.activityLevel
+					+"keyFrameInterval"+_camera.keyFrameInterval+"motionLevel"+_camera.motionLevel+"motionTimeout"+_camera.motionTimeout);	 */
+				
+				trace("timermotionLevel"+_camera.motionLevel+"_camera.activityLevel"+_camera.activityLevel);		
+				if(busyFlag==false){
+					Alert.show("Camera may not attached or in use by another application .Please check your Camera.");
+					trace(_camera.motionLevel);		
+				
+				}/*else{
+					busyFlag=false;	
+					timer.start();
+				}
+				
+			 	if(_camera.activityLevel!=activeNum){
+					busyFlag=true;	
+				}
+				activeNum=_camera.activityLevel; */
+				
+				
+			}
+		/* 	protected function activationTimeoutforBusy(e:TimerEvent):void{
+				if(busyFlag==false){
+					Alert.show("Camera is not available.");
+				}
+				
+			}
+			 */
+			
+			private function doUnPublishMyCam():void
+			{			
+				vPub.disconnectandunpublish();
+			} 
+			
+			public function onSetHeightWidth():void{
+				//this.cnvPublish.width = this.tw._width;
+				//this.cnvPublish.height = this.tw._height;
+			}
+			private var _timer : Timer;
+			[Bindable]
+			private var userArray : ArrayCollection;
+			protected function application1_creationCompleteHandler():void
+			{
+				troubleclicked="false";
+				sharepopupcontainer.visible=true;
+				//_appModel.activityURL="http://htptest.txxchange.com/index.php?action=conferencelog&useraction=";
+				dynamicurl=Application.application.parameters.url;
+				_appModel.activityURL=dynamicurl+"/index.php?action=conferencelog&useraction=";
+				this.localSname = Application.application.parameters.localSname;//"tsn"; //Application.application.parameters.localSname;//
+				this.userType = Application.application.parameters.type;
+				
+				var liveName : String =Application.application.parameters.liveSname;//"psn:psn1,psn:psn2,psn:psn3";//Application.application.parameters.liveSname;//
+				troubleFlag="on"//Application.application.parameters.troubleflag;
+				
+				if(liveName != null && localSname != null)
+				{
+					var strArray : Array = liveName.split(",");
+					if(strArray != null && strArray.length > 1)
+					{
+						userArray = new ArrayCollection();
+						for each(var objStr : String in strArray)
+						{
+							var uname : Array = objStr.split(":");						
+							
+							if(uname.length > 1)
+							{
+								var obj : Object = new Object();
+								obj.username = uname[0];
+								obj.displayname = uname[1];
+								userArray.addItem(obj);
+							}
+						}
+						closePopup(true);
+						this.lstUser.dataProvider = userArray;
+					}
+					else
+					{
+						this.liveSname = strArray[0].toString().split(":")[0];
+						loadVideoComponent();
+					}
+				}
+				else
+				{
+					Alert.show("Server Error.", "Error");
+				}
+			}
+			
+			private function loadVideoComponent():void
+			{ 
+				_timer = new Timer(2000);
+				_timer.addEventListener(TimerEvent.TIMER, onTimerComplete);
+				
+				_timer.start();
+				
+				minuteTimer=new Timer(1000);
+				minuteTimer.addEventListener(TimerEvent.TIMER, onTick);
+			}
+			
+			
+			private function onTimerComplete(evt : TimerEvent):void
+			{
+				_timer.stop();
+				tw.initCams();
+				
+				onPublishClicked(null);
+			}
+			
+			private function onSharedVideo():void
+			{
+				try
+				{
+					sharepopupcontainer.visible=false;
+					
+					if(btnShareVideo.styleName == "butonStopVideo")
+					{
+						var stopActivity:String=_appModel.activityURL+"10";
+						sendToURL(new URLRequest(stopActivity));
+						
+						this.doUnPublishMyCam();
+						btnShareVideo.styleName = "butonStartVideo";
+						if(vPub.test_so)
+							vPub.test_so.setProperty(this.localSname,"false");
+						
+						if (_appModel.ncConnection) {
+							_appModel.ncConnection.call("stopShare", null, this.localSname);
+						}
+						stopTimer();
+						return;
+					}
+					refreshpopupcontainer.visible=true;
+					var shareActivity:String=_appModel.activityURL+"3";
+					sendToURL(new URLRequest(shareActivity));
+					btnShareVideo.styleName = "butonStopVideo";
+					vPub.connectandpublish();
+					if(vPub.test_so)
+					{
+						vPub.test_so.setProperty(this.localSname,"true");
+					}
+					if(_appModel.ncConnection)
+						_appModel.ncConnection.call("shareVedio",null , this.localSname);
+					//_appModel.ncConnection.addEventListener(NetStatusEvent.NET_STATUS,checkNcStatus);
+					startTimer(); 
+				}
+				catch(e : Error){ 
+					//Alert.show(e.message);
+				}
+			}
+			private function checkNcStatus(infoObject:NetStatusEvent):void
+			{
+				trace("nc: "+infoObject.info.code+" ("+infoObject.info.description+")")
+				if (infoObject.info.code == "NetConnection.Connect.Closed" ||infoObject.info.code == "NetConnection.Connect.Failed"){
+					//Alert.show("Internet got disconnected.");
+				var internetActivity:String=_appModel.activityURL+"7";
+				sendToURL(new URLRequest(internetActivity));
+				}
+				else if (infoObject.info.code == "NetConnection.Connect.Rejected")
+				{
+					Alert.show(infoObject.info.description);
+				}
+				else if (infoObject.info.code == "NetConnection.Connect.Success")
+				{//FlexGlobals.topLevelApplication.btnShareVideo.enabled=true;
+					
+					//publish();
+				}
+				//
+			}	
+			private function onVolumeChange():void
+			{
+				if(hVolume.value == 0)
+				{
+					btnMute.styleName = "butonUnMute";
+				}
+				else
+				{
+					btnMute.styleName = "butonMute";
+				}
+				setVolume();
+			}
+			
+			private function onMute():void
+			{
+				if(btnMute.styleName == "butonMute")
+				{
+					hVolume.value = 0;
+				}
+				else
+				{
+					hVolume.value = 1;
+				}
+				onVolumeChange();
+			}
+			
+			private function setVolume():void{
+				try{
+					var sT : SoundTransform = new SoundTransform((hVolume.value),0);
+					if (subscriberCom !=null && subscriberCom.vSub != null && subscriberCom.vSub.nsPlay != null) {
+						subscriberCom.vSub.nsPlay.soundTransform=sT;
+					}
+				}
+				catch(e : Error)
+				{
+					//Alert.show(e.message);
+				}
+			}
+			
+			private var minuteTimer:Timer;
+			private var ss:Number;
+			private var mm:Number;
+			private var _SS:String;
+			private var _MM:String;
+			
+			private function onTick(event:TimerEvent):void {
+				if (ss>59) {
+					ss=0;
+					mm++;
+				}
+				_SS = (((ss.toString()).length)< 2)?('0'+ss.toString()):ss.toString();
+				_MM = (((mm.toString()).length)< 2)?('0'+mm.toString()):mm.toString();
+				lblTimer.text = (_MM+":"+_SS);
+				ss++;
+			}
+			
+			private function startTimer():void {
+				ss=0;
+				mm=0;
+				_SS='00';
+				_MM='00';
+				minuteTimer.start();
+			}
+			
+			private function stopTimer():void {
+				ss=0;
+				mm=0;
+				_SS='00';
+				_MM='00';
+				minuteTimer.stop();
+				lblTimer.text = ("00:00");
+			}
+			
+			private function onStart():void
+			{
+				closePopup(false);
+				loadVideoComponent();				
+			}
+			
+			public function onItemClick(objData:Object):void
+			{
+				// Alert.show(objData.username);
+				this.liveSname = objData.username;
+			}
+			
+			private function closePopup(flag : Boolean):void
+			{
+				twUsers.visible = flag;
+				twUsers.includeInLayout = flag;
+			}
+			
+			protected function refreshButton_clickHandler(event:MouseEvent):void
+			{   /* var label:Label= new Label();
+				label.text="Refreshing..."
+				label.setStyle("fontSize",20);
+				label.setStyle("color",'#006400');
+				label.setStyle("top",(this.height/2)-20);
+				label.percentHeight=100;
+				label.percentWidth=100;
+				label.setStyle("textAlign","center");
+				label.setStyle("verticalAlign","middle");
+				bordercon.visible=true;
+				refreshClicked=true;
+				bordercon.verticalCenter=0;
+				bordercon.horizontalCenter=0;
+				bordercon.percentHeight=100;
+				bordercon.percentWidth=100;
+				bordercon.addElement(label);
+				
+				bordercon.alpha=.5;
+				this.addChild(bordercon);
+				
+				// ExternalInterface.call("",loadVideoComponent);
+				
+				loadVideoComponent();  */
+				//var str:String=ExternalInterface.call("window.location.href.toString") + "&" + Math.random().toString();
+				var ref:URLRequest = new URLRequest("javascript:location.reload(true)");
+				navigateToURL(ref, "_self");
+				
+				var refreshActivity:String=_appModel.activityURL+"4";
+				sendToURL(new URLRequest(refreshActivity));
+				
+			}
+			
+			protected function application1_applicationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			protected function closesharepopup_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				sharepopupcontainer.visible=false;
+			}
+			
+			protected function closerefreshpopup_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				refreshpopupcontainer.visible=false;;
+			}
+			
+			public function trouble_btn_clickHandler(event:MouseEvent):void
+			{
+				//Alert.show("befor if "+troubleclicked);
+				//if(troubleclicked=="false"){
+					//Alert.show("after if "+troubleclicked);
+				//var trouble:TroubleshootPopup= new TroubleshootPopup();
+				
+				var pop:TroubleshootPopup=PopUpManager.createPopUp(DisplayObject(FlexGlobals.topLevelApplication),Class(TroubleshootPopup),true) as TroubleshootPopup;
+			    PopUpManager.centerPopUp(pop);
+			//	Alert.show(pop+"   "+DisplayObject(FlexGlobals.topLevelApplication).toString()+"  "+Class(TroubleshootPopup).toString());
+				//PopUpManager.addPopUp(TroubleshootPopup,this,true) ;
+				//troubleclicked="true";
+				//}
+				/* var troubleurl:String=Application.application.parameters.troubleurl;
+			
+				navigateToURL(new URLRequest(troubleurl)); */
+			}
+			
+			protected function herebtnPopUp_clickHandler(event:MouseEvent):void
+			{
+				// "http://get.adobe.com/flashplayer/"
+				navigateToURL(new URLRequest(Application.application.parameters.hereurl));
+					
+			}
+			
+			public function ShowLiveStreaming():void
+			{
+				FlexGlobals.topLevelApplication.subscriberCom.initUserProfile(FlexGlobals.topLevelApplication.liveSname);// TODO Auto-generated method stub
+				//showlivestream.visible=false;
+				//hidelivestream.visible=true;
+			}
+			
+			public function HideLiveStreaming():void{
+				FlexGlobals.topLevelApplication.subscriberCom.unSubscribeStream();
+			//	
+				//showlivestream.visible=true;
+				//hidelivestream.visible=false;
+			}
+			
+			
+		]]>
+	</mx:Script>
+	<mx:Image source="@Embed(source='assets/tele_conf_skin.jpg')" width="500" height="327"/>
+	<!--<mx:Text text="{this.localSname+'       '+this.liveSname}"/>-->
+	<s:BorderContainer x="357" y="96" width="138" height="108" id="cnvPublish"   backgroundImage="@Embed(source='assets/frame_video_small.png')">
+		<mx:UIComponent id="uservideoStream" left="6" right="4" top="6" bottom="4"
+						visible="true" includeInLayout="true" />
+	</s:BorderContainer>
+	
+	<ns1:SubscriberCom id="subscriberCom" x="5" y="21" width="333" height="254">
+	</ns1:SubscriberCom>
+	<s:BorderContainer x="0" y="194" borderAlpha="0" backgroundAlpha="0" id="refreshpopupcontainer" visible="false">
+		<mx:Image x="0" y="-11" source="@Embed(source='assets/popup-refresh.png')"/>
+		<mx:Image x="147" y="-1" id="closerefreshpopup"   buttonMode="true"   source="@Embed(source='assets/closeBtn.png')" click="closerefreshpopup_clickHandler(event)" useHandCursor="true"  mouseChildren="false"/>
+		<s:Label x="121" height="14" mouseChildren="false"  textDecoration="underline" y="51" id="herebtnPopUp" color="blue" click="herebtnPopUp_clickHandler(event)" buttonMode="true" useHandCursor="true"  text="here" fontSize="10"   />
+	</s:BorderContainer>
+	
+	<mx:Image id="refreshButton"  buttonMode="true" mouseChildren="false"  maintainAspectRatio="false"   source="@Embed(source='assets/btn_refresh.png')" x="12" y="289" click="refreshButton_clickHandler(event)"/>
+	<s:BorderContainer x="132" y="194" borderAlpha="0" backgroundAlpha="0" id="sharepopupcontainer">
+		<mx:Image x="-9" y="14" source="@Embed(source='assets/popup-share.png')" />
+		<mx:Image x="139" y="25" id="closesharepopup"  buttonMode="true"   source="@Embed(source='assets/closeBtn.png')" click="closesharepopup_clickHandler(event)" useHandCursor="true"  mouseChildren="false"/>
+	</s:BorderContainer>
+	
+	<mx:Button x="50" y="289" styleName="butonStartVideo" id="btnShareVideo" enabled="false" click="onSharedVideo()"/>
+	
+	
+	<mx:Label x="206" y="293" id="lblTimer" width="69" fontFamily="Arial" fontSize="18" color="#ffffff" textAlign="center" text="00:00"/>
+	<!--<mx:Button id="showlivestream" visible="false" x="357" y="212" width="138" label="Show Streaming"
+			   chromeColor="#2060B6" color="#192119"/>
+	<mx:Button id="hidelivestream" visible="false" x="285" y="297" width="63" label="Hide Streaming" click="HideLiveStreaming()"/>-->
+	<mx:Button x="356" y="295" styleName="butonMute" id="btnMute" width="27" height="27" click="onMute()"/>
+	
+	<mx:HSlider x="389" id="hVolume" styleName="volumeSlider" sliderThumbClass="com.BigThumbClass" liveDragging="true" showDataTip="false" change="onVolumeChange()" y="294" value="0.9" minimum="0" snapInterval="0.1" maximum="1" width="97"/>
+	
+	<ns1:CameraSettings id="tw" visible="false" includeInLayout="false" modalTransparency="1"/>
+	<mx:RadioButtonGroup id="rbg"/>
+	<mx:LinkButton x="405" y="254"  visible="{(troubleFlag=='on')?true:false}" id="trouble_btn" color="#A52A2A" label="Troubleshoot" click="trouble_btn_clickHandler(event)"/>
+	<mx:VBox id="twUsers" paddingLeft="12" paddingTop="12" visible="false" includeInLayout="false" paddingRight="12" paddingBottom="12" width="480" height="315" verticalCenter="0" horizontalCenter="0" backgroundColor="#ffffff" borderStyle="solid" cornerRadius="12" borderColor="#898B8D" >
+		<mx:HBox width="100%" height="22">
+			<mx:Label text="Please Select Provider:" fontFamily="Arial" fontWeight="bold" fontSize="14"/>
+		</mx:HBox>
+		<mx:List id="lstUser" width="100%" height="100%">
+			<mx:itemRenderer>
+				<mx:Component>
+					<mx:HBox width="100%" height="24" verticalAlign="middle">
+						<mx:RadioButton label="{data.displayname}" fontFamily="Arial" fontSize="13" click="outerDocument.onItemClick(data)" group="{outerDocument.rbg}" width="100%"/>
+					</mx:HBox>
+				</mx:Component>
+			</mx:itemRenderer>
+		</mx:List>
+		<mx:HBox width="100%" height="31" verticalScrollPolicy="off" horizontalAlign="center" verticalGap="25" verticalAlign="middle">
+			<mx:Button label="Start" horizontalCenter="0" fontFamily="Arial" fontSize="12" fontWeight="bold" enabled="{this.liveSname != null}" click="onStart()" width="81"/>			
+		</mx:HBox>
+	</mx:VBox>
+</mx:Application>

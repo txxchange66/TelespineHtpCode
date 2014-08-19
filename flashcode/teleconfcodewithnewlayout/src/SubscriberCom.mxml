@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" initialize="{Security.allowDomain('*');Security.allowInsecureDomain('*')}"  borderColor="black" xmlns:s="library://ns.adobe.com/flex/spark"  backgroundColor="#104E8B" width="333" height="254">
+	<mx:Script>
+		<![CDATA[ 
+			//backgroundImage="@Embed(source='assets/frame_video.png')"
+			
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.core.FlexGlobals;
+			public var vSub:VideoChatSubscriber;
+			public var video:Video;
+			
+			
+			public function initUserProfile (user:String):void
+			{	
+				if(vSub == null)
+					vSub = new VideoChatSubscriber(user);
+				this.doSubscribeOthersCam();
+				lblText.visible = false;
+			}
+			
+			public function unSubscribeStream():void
+			{
+				if(vSub != null)
+					vSub.unSubscribeStream();
+			}
+			
+			public function doSubscribeOthersCam():Boolean
+			{
+				try
+				{ 
+					/* if(	_userVO.TangofxUserID != _appModel.loggedInUser.TangofxUserID)
+					{ */
+						video = 	vSub.subscribeStream();
+						if(video!=null)
+						{
+							/* userStream.visible=false; 
+							userStream.includeInLayout=false;
+							uservideoStream.visible=true;
+							uservideoStream.includeInLayout=true;
+							
+							
+							removeUIVideoChildrens(); */
+							video.width = 320;
+							video.height = 240;
+							uservideoStream.addChild(video);
+							/* uservideoStream.scaleX = 1;
+							uservideoStream.scaleY =1; */
+							
+							return true;
+						}
+						else
+						{  
+							//lblText.visible = true;
+							Alert.show("Person has stopped sharing or logged out.");
+							return false;
+						}
+					/* } */
+				}
+				catch(e:Error)
+				{
+					//JSCallBackHandler.getInstance().AlertUser(e.message); check net connection and call....
+					
+				}
+				return false;
+			}
+			
+			public function minMaxSubscriber (flag : Boolean = false):void
+			{
+				//Alert.show(""+this.width +"    "+ this.height);
+				if(video!=null)
+				{
+					//Alert.show(""+percentWidth +"    "+ percentHeight);
+					uservideoStream.width = this.width;
+					uservideoStream.height = this.height;
+					if(!flag)
+					{
+						video.width = this.width;//325;
+						video.height = this.height;//245;
+					}
+					else
+					{
+						video.width = 320;
+						video.height = 240;
+					}
+				}
+			}
+			
+
+			public function button1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				initUserProfile(FlexGlobals.topLevelApplication.localSname);
+				//this.doSubscribeOthersCam();
+			}
+
+		]]>
+	</mx:Script>
+	<mx:Label text="Video Not Available" fontFamily="Arial" fontSize="13"   color="#ffffff" verticalCenter="0" horizontalCenter="0" id="lblText"/>
+	<mx:UIComponent id="uservideoStream"
+					left="8" right="5" top="8.5" bottom="5"
+					visible="true" includeInLayout="true" /> 
+	
+	<mx:Button x="289" y="258" label="Subscribe" includeInLayout="false" visible="false" click="button1_clickHandler(event)"/>
+</mx:Canvas>

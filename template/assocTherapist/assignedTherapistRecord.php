@@ -1,0 +1,1 @@
+<tr><td align="left"> <!therapistName>  [<a href="index.php?action=removeAssocTherapist&therapist_id=<!therapistId>&user_name=<!userName>&patient_id=<!patientId>&actionActivateFrom=<!actionActivateFrom>&clinic_id=<!clinic_id>">remove</a>]</td></tr>

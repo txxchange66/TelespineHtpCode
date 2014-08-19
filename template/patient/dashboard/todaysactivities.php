@@ -1,0 +1,19 @@
+<!-- Today - Used to be "Healthy Back Habits" -->
+<div class="box">
+        <div class="box-header">
+                <h2><i class="fa fa-coffee"></i>Today's Activities ( Day <span class="getDaysSinceStart"></span>)</h2>
+                <div class="box-icon"> 
+                        <a href="#" class="btn-setting" onClick="App.showHelp('today')"><i class="fa  fa-info"></i></a>
+                        <a href="#" class="btn-minimize"><i class="fa fa-chevron-up"></i></a> 
+                </div>
+        </div>
+        <div class="box-content" style="border-radius:8px; ">
+                <div class="todo" >
+                                <!--<p style="margin:2px 10px;pagging-bottom:8px;display:block;border-bottom:1px dotted #ddd;">Today you have 
+                                <span class="getNumberOfItems">   </span> action item(s).</p>-->
+                        <ul style="border-radius:8px; min-height:40px; list-style:none;margin:2px;" id="dailyActivities2">
+                        </ul>
+                        <div class="clearfix"></div>
+                </div>
+        </div>
+</div>

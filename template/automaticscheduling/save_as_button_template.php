@@ -1,0 +1,1 @@
+<input type="image" src="/images/btn-copy-tem.jpg" value="Copy Template" onClick="get_template_name();" />

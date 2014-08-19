@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="333" height="254" >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.MessagePopUp;
+			
+			import flash.display.MovieClip;
+			import flash.events.ActivityEvent;
+			import flash.events.MouseEvent;
+			import flash.events.NetStatusEvent;
+			import flash.media.Camera;
+			import flash.media.Microphone;
+			import flash.media.Sound;
+			import flash.media.SoundTransform;
+			import flash.media.Video;
+			import flash.net.NetConnection;
+			import flash.net.NetStream;
+			
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.utils.ObjectUtil;
+			private var alert:MessagePopUp;
+			var nc:NetConnection;
+			public var ns:NetStream;
+			var video:Video;
+			var sound:Sound;
+			private var meta:Object;
+			private var timer:Timer
+			private var checktimer:Timer;
+			private static var count:int=0;
+			private function ns_onCuePoint(item:Object):void {
+				trace("cue");
+			}
+			/*
+			* Connect and start publishing the live stream
+			*/
+			public function init():void {
+				trace("Okay, let's connect now");
+				timer=new Timer(1000,1);
+				timer.addEventListener(TimerEvent.TIMER_COMPLETE, closeWindowWithTimer);
+	
+				checktimer= new Timer(1000,0);
+				checktimer.addEventListener(TimerEvent.TIMER,checkStreamBandwidth);
+				
+		    	nc = new NetConnection();
+				nc.client=this;
+				nc.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
+				nc.connect("rtmpe://zi0hdi07fe.rtmphost.com/telecon");
+			}
+			
+			public function checkStreamBandwidth(event:TimerEvent):void{
+				
+				trace("currentBytesPerSecond: "+ns.info.currentBytesPerSecond+"maxBytesPerSecond: "
+					+ns.info.maxBytesPerSecond+" | bufferLength: "+ns.bufferLength
+					+"byteCount: "+ns.info.byteCount+"droppedFrames: "+ns.info.droppedFrames+"playbackBytesPerSecond: "+ns.info.playbackBytesPerSecond);
+				
+				if(ns.info.currentBytesPerSecond==0){
+					count++;
+					if(count==3){
+						if(FlexGlobals.topLevelApplication.userType=="pai"){
+							var deletepai:String=FlexGlobals.topLevelApplication.informationURL+"delete&doctorid="+FlexGlobals.topLevelApplication.liveUsername+"&patientid="+"";
+							sendToURL(new URLRequest(deletepai));						
+						}	
+						//, "Alert",Alert.OK ,null , alertListener, null, Alert.OK
+						FlexGlobals.topLevelApplication.minuteTimer.stop();
+						alert = PopUpManager.createPopUp(this.parent, MessagePopUp, true) as MessagePopUp;
+						alert.messageTxt.text="Your teleconference has been ended by the other party.";
+						PopUpManager.centerPopUp(alert);
+						FlexGlobals.topLevelApplication.closeWindowFlag=true;
+						timer.start();
+						count=0;
+						checktimer.stop();
+					}
+				}
+				
+				/* if(ns.bufferLength==0){
+				ns.play(secondaryStreamName);  
+				} */
+				
+			}
+			/*
+			* Disconnect from the server
+			*/
+			private function stopHandler(event:MouseEvent):void {
+				trace("Now we're disconnecting");
+				nc.close();
+			}
+			
+			/*
+			* Clear the MetaData associated with the stream
+			*/
+			private function clearHandler(event:MouseEvent):void {
+				if (ns){
+					trace("Clearing MetaData");
+					ns.send("@clearDataFrame", "onMetaData");
+				}
+			}
+			public function closeWindow():void 
+			{ 
+				var url:String = "javascript:window.opener = self;window.close();"; 
+				var urlReq:URLRequest = new URLRequest(url); 
+				navigateToURL(urlReq,"_self"); 
+			} 
+			public function closeWindowWithTimer(timer:TimerEvent):void 
+			{ 
+				var url:String = "javascript:window.opener = self;window.close();"; 
+				var urlReq:URLRequest = new URLRequest(url); 
+				navigateToURL(urlReq,"_self"); 
+			} 
+			
+			private function alertListener(event:CloseEvent):void{
+				if (event.detail==Alert.OK) {
+					closeWindow();
+				}
+				
+			}
+			
+			private function netStatusHandler(event:NetStatusEvent):void
+			{
+				trace("connected is: " + nc.connected );
+				trace("event.info.level: " + event.info.level);
+				trace("event.info.code: " + event.info.code);
+			
+				switch (event.info.code)
+				{
+					case "NetConnection.Connect.Success":
+						trace("Congratulations! you're connected");
+						publishLiveStream();
+						break;
+					case "NetConnection.Connect.Rejected":
+						trace ("Oops! the connection was rejected");
+						break;
+					case "NetStream.Play.Stop":
+						trace("The stream has finished playing");
+						break;
+					case "NetStream.Play.StreamNotFound":
+						trace("The server could not find the stream you specified"); 
+						break;
+					case "NetStream.Publish.Start":
+						
+						trace("NetStream.Publish.Start");
+						// when publishing starts, add the metadata to the stream
+						
+						break;
+					case "NetStream.Play.PublishNotify":
+						trace("Publish notify");
+						break;
+					case "NetStream.Play.InsufficientBW":
+					
+						break;
+					case "NetStream.Play.UnpublishNotify":
+						trace("NetStream.Play.UnpublishNotify");
+						if(FlexGlobals.topLevelApplication.userType=="pai"){
+							var deletepai:String=FlexGlobals.topLevelApplication.informationURL+"delete&doctorid="+FlexGlobals.topLevelApplication.liveUsername+"&patientid="+"";
+							sendToURL(new URLRequest(deletepai));						
+						}	
+						//, "Alert",Alert.OK ,null , alertListener, null, Alert.OK
+						FlexGlobals.topLevelApplication.minuteTimer.stop();
+						alert = PopUpManager.createPopUp(this.parent, MessagePopUp, true) as MessagePopUp;
+						alert.messageTxt.text="Your teleconference has been ended by the other party.";
+						PopUpManager.centerPopUp(alert);
+						FlexGlobals.topLevelApplication.closeWindowFlag=true;						
+						timer.start();
+						break;
+					case "NetStream.Publish.BadName":
+						trace("The stream name is already used");
+						break;
+				}
+			}
+			
+			public function onBWDone():void{
+			}
+			
+			private function activityHandler(event:ActivityEvent):void {
+				
+			} 
+			
+			/*
+			* Create a live stream, attach the camera and microphone, and
+			* publish it to the local server
+			*/
+			private function publishLiveStream():void {
+				ns = new NetStream(nc);
+				ns.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
+				var nsClient:Object = {};
+			
+				
+				nsClient.onCuePoint = ns_onCuePoint;
+				ns.client = nsClient;
+				
+				
+				video = new Video();
+				video.smoothing=true;
+				video.attachNetStream(ns);
+				video.width=331;
+				video.height=252;
+				sound = new Sound();
+				ns.soundTransform = new SoundTransform(1);
+				trace(FlexGlobals.topLevelApplication.liveUsername);
+				ns.play(FlexGlobals.topLevelApplication.liveUsername);
+				uic.addChild(video);
+				
+				//checktimer.start();
+				
+				
+				//this.addChild(video);
+				//myvid.source=camera;
+				
+			} 
+			
+			
+			
+		]]>
+	</fx:Script>
+	<mx:Label x="96" y="114" color="white" fontSize="14" text="Waiting for Attendee..."/>
+	<mx:UIComponent id="uic"  width="331" height="252" />
+	
+</s:BorderContainer>

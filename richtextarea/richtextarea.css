@@ -1,0 +1,133 @@
+/* used for the floating and static toolbars */
+ldhfhdfdbdfh
+#rta_floating_toolbar {
+	background-color: #E0DFE3;
+	border-bottom: 1px solid #9D9DA1;
+	position: absolute;
+	width: 100%;
+	z-index: 100;
+	}
+#rta_static_toolbar {
+	background-color: #E0DFE3;
+	border-bottom: 1px solid #9D9DA1;
+	width: 100%;
+	}
+
+#rta_toolbar {
+	background-color: #E0DFE3;
+	cursor: default;
+	}
+#rta_toolbar #predefines {
+	padding: 2px;
+	border-bottom: 1px solid #9D9DA1;
+	vertical-align: middle;
+	}
+#rta_toolbar #extra_controls {
+	padding: 4px;
+	vertical-align: middle;
+	float: right;
+	}
+#rta_toolbar #extra_controls_notoolbar {
+	padding: 4px;
+	vertical-align: middle;
+	text-align: right;
+	}
+#rta_toolbar #buttons {
+	font-size: 0px;
+	border-top: 1px solid #FFFFFF;
+	}
+#rta_toolbar IMG.rta_button {
+	width: 20px;
+	height: 20px;
+	margin: 2px;
+	padding: 0px 2px 0px 2px;
+	border: 1px solid #E0DFE3;
+	cursor: pointer;
+	}
+#rta_toolbar IMG.rta_button_over, #rta_toolbar IMG.rta_button:hover {
+	width: 20px;
+	height: 20px;
+	margin: 2px;
+	padding: 0px 2px 0px 2px;
+	border: 1px solid #FFFFFF;
+	border-bottom: 1px solid #9D9DA1;
+	border-right: 1px solid #9D9DA1;
+	cursor: pointer;
+	}
+#rta_toolbar IMG.rta_button_down, #rta_toolbar IMG.rta_button:active, #rta_toolbar IMG.rta_button_toggle {
+	width: 20px;
+	height: 20px;
+	margin: 2px;
+	padding: 0px 2px 0px 2px;
+	border: 1px solid #FFFFFF;
+	border-top: 1px solid #9D9DA1;
+	border-left: 1px solid #9D9DA1;
+	cursor: pointer;
+	}
+#rta_toolbar IMG.rta_button_active {
+	width: 20px;
+	height: 20px;
+	margin: 2px;
+	padding: 0px 2px 0px 2px;
+	background-color: #F8F8F4;
+	border: 1px solid #9D9DA1;
+	cursor: pointer;
+	}
+#rta_toolbar IMG.rta_sep {
+	height: 22px;
+	margin: 2px;
+	margin-top: 0px;
+	border-left: 1px solid #9D9DA1;
+	}
+
+/* dialog popup styles */
+#rta_dialog, #rta_dialog TABLE, #rta_dialog TD {
+	background-color: #E0DFE3;
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+	}
+#rta_dialog #rta_panel {
+	padding: 10px;
+	}
+#rta_dialog #rta_buttons {
+	padding: 0px 10px 10px 10px;
+	text-align: right;
+	}
+#rta_dialog LABEL {
+	white-space: nowrap;
+	}
+#rta_dialog H2 {
+	font-size: 18px;
+	margin: 0px;
+	padding: 0px;
+	}
+#rta_dialog .entity {
+	background-color: #FFFFFF;
+	font-family: Arial, sans-serif;
+	border: 1px solid #000000;
+	font-size: 13px;
+	width: 20px;
+	height: 20px;
+	cursor: pointer;
+	text-align: center;
+	}
+#rta_dialog #entity_preview {
+	background-color: #FFFFFF;
+	font-family: Arial, sans-serif;
+	border: 1px solid #000000;
+	font-size: 40px;
+	width: 60px;
+	height: 60px;
+	cursor: pointer;
+	text-align: center;
+	}
+#rta_dialog #entity_description {
+	text-align: center;
+	}
+#rta_dialog #tabletomod TD {
+	background-color: white;
+	}
+
+.rta_editable_region {
+	border: 1px dotted red;
+	}

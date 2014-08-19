@@ -1,0 +1,20 @@
+Things to work on:
+	fallback for older browsers
+	preview functionality
+	better getSelected functionality (get the offsets of start and end so we can leave html intact)
+	add in an extra iframe layer so loading multiple style sheets can work better
+
+Things to do in this or later versions:
+This version:
+	look into the html2xhtml script -- it works well, and I think we should use it but it's liscensing is bad so it has to be re-written.
+
+Later versions:
+	button feedback -- if on bold text, show the bold button pressed etc.
+	advanced toolbar -- switching between design and source views should result in a different toolbar.
+	load editable regions into another iframe to allow for specific style sheet use
+		-- this means we have to redo how all the iframes are handled .. by going down two levels instead of one (functionize time)
+	add specific toolbars (check ms word for examples).  when selecting a table, show additional table toolbar buttons, and when selecting an image, show image toolbar buttons, etc.
+	add line spacing button and control
+	figure out a better way to do dialog control (so the window stays in front, possibly locking the opening window)
+	add spell checking -- ajax would be perfect for this, but we need to get a better 'getSelected' function
+	redo toolbar more like ms word for full toolbar mode

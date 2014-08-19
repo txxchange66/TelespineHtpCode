@@ -1,0 +1,1 @@
+<input type="checkbox" name="<!chkName>" onMouseOver="help_text(this, '<!helpText>')") value="<!value>" checked="checked" />&nbsp;<label><!labelValue></label>&nbsp;

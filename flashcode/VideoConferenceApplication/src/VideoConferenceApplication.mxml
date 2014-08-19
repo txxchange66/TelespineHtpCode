@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"  initialize="{Security.allowDomain('*')}" 
+			   xmlns:s="library://ns.adobe.com/flex/spark"  creationComplete="application1_creationCompleteHandler(event)"  width="100%" height="100%" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"  xmlns:ns1="*">
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		@namespace ns1 "*";
+		.hboxBackgroundImage{
+			borderSkin:Embed("assets/tele_conf_skin.jpg");
+		}
+		.butonMute
+		{
+			disabled-skin: Embed(source="assets/voice_on.png");
+			down-skin: Embed(source="assets/voice_on.png");
+			over-skin: Embed(source="assets/voice_on.png");
+			up-skin: Embed(source="assets/voice_on.png");
+		}
+		
+		.butonUnMute
+		{
+			disabled-skin: Embed(source="assets/voice_off.png");
+			down-skin: Embed(source="assets/voice_off.png");
+			over-skin: Embed(source="assets/voice_off.png");
+			up-skin: Embed(source="assets/voice_off.png");
+		}
+	</fx:Style>
+	<fx:Script>
+		<![CDATA[
+			import com.MessagePopUp;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.rpc.http.HTTPService;
+			public var localSname:String="";
+			public var liveSname:String="";
+			public var DoctorsListArray : ArrayCollection;
+			[Bindable]
+			public var liveUsername:String;
+			
+			public var checktimer:Timer;
+		
+			public var checktimerForPatient:Timer;
+			public var FlagchecktimerForPatient:Boolean=false;
+			public var userType:String="";
+			public var webCamOn:Boolean=false;
+			public var ChecksubscriberStream:Boolean=false;
+			public var noPublisherInternet:Boolean=false;
+			
+			private var http_service:HTTPService;
+			
+			private var http_serviceforPatient:HTTPService;
+			private var xmlList:XML;
+			
+			public var xmlData:String;
+			private var http_serviceCheck:HTTPService;
+			
+			private var xmlListCheck:XML;
+			public var dynamicurl:String;
+			public var informationURL:String=""
+			public var currentPatientId:String="";
+			public var minuteTimer:Timer;
+			private var ss:Number;
+			private var mm:Number;
+			private var _SS:String;
+			private var _MM:String;
+			private var alert:MessagePopUp;;
+			[Bindable]
+			private var messageStr:String;
+			public var closeWindowFlag:Boolean=false;
+			[Bindable]
+			public var streamStatsXMl:String;
+			
+			protected function application1_creationCompleteHandler(event:FlexEvent):void
+			{
+				//Security.showSettings(SecurityPanel.PRIVACY);
+				
+				//Alert.show(ChecksubscriberStream.toString());
+				ChecksubscriberStream=false;
+				//Alert.show("localSname: "+FlexGlobals.topLevelApplication.parameters.localSname+" liveSname: "+FlexGlobals.topLevelApplication.parameters.liveSname);
+				userType="doc"//FlexGlobals.topLevelApplication.parameters.type;
+				this.localSname ="nat@sanjay.com"//FlexGlobals.topLevelApplication.parameters.localSname;
+				var liveSname : String ="pai1@sanjay.com"//FlexGlobals.topLevelApplication.parameters.liveSname//"nat@sanjay.com:sanjay naouropathic doctor";//,chi@sanjay.com:sanjay chiropractor";//Application.application.parameters.liveSname;
+				dynamicurl="http://htptest.txxchange.com"//FlexGlobals.topLevelApplication.parameters.url;
+				informationURL=dynamicurl+"/teleconxml.php?action=";
+				
+				
+				ss=0;
+				mm=0;
+				_SS='00';
+				_MM='00';
+				minuteTimer=new Timer(1000);
+				minuteTimer.addEventListener(TimerEvent.TIMER, onTick);
+			//	xmlData="http://htpdev.txxchange.com/teleconxml.php?action=check&doctorid=nat@sanjay.com";
+				
+				checktimer = new Timer(1000,0);				
+				checktimer.addEventListener(TimerEvent.TIMER,checkForOnlineUser);
+				
+			
+				
+				checktimerForPatient = new Timer(1000,0);				
+				checktimerForPatient.addEventListener(TimerEvent.TIMER,CheckCurrentPatientid);
+				
+						
+				streamStatsXMl="http://zi0hdi07fe.rtmphost.com:1111/admin/getLiveStreamStats?auser=zi0hdi07fe&apswd=gunbarrel&appInst=telecon&stream=";
+							
+				if(liveSname != null && localSname != null)
+				{
+					var strArray : Array = liveSname.split(",");
+					if(strArray != null && strArray.length > 1)
+					{
+						DoctorsListArray = new ArrayCollection();
+						for each(var objStr : String in strArray)
+						{
+							var uname : Array = objStr.split(":");						
+							
+							if(uname.length > 1)
+							{
+								var obj : Object = new Object();
+								obj.username = uname[0];
+								obj.displayname = uname[1];
+								DoctorsListArray.addItem(obj);
+							}
+						}
+					    showPopUp(true);
+						doctorslist.dataProvider = DoctorsListArray;
+						
+					}
+					else
+					{
+						
+						this.liveUsername = strArray[0].toString().split(":")[0];
+					
+						onStart();
+					}
+			}else{
+				Alert.show("Server Error.","Alert!");
+			}
+				
+								
+			}
+			
+			
+			
+			public function closeAlert():void{
+				 PopUpManager.removePopUp(alert);
+			}
+			
+			public function checkForOnlineUser(event:TimerEvent):void{
+				var xml:String=streamStatsXMl+this.liveUsername;
+				
+				loadXmlDataCheck(xml); 
+			}
+			
+			public function CheckCurrentPatientid(event:TimerEvent):void{
+			    var updatexml:String=xmlData+"&"+Math.random().toString();
+				loadXmlForPatient(updatexml); 
+			}
+			
+			
+			public function onItemClick(objData:Object):void
+			{
+				// Alert.show(objData.username);
+				this.liveUsername = objData.username;
+			}
+			
+			private function showPopUp(flag : Boolean):void
+			{
+				doctorPopup.visible = flag;
+				doctorPopup.includeInLayout = flag;
+			}
+			
+			private function onStart():void
+			{
+				
+				if(userType=="pai"){
+					var check:String=informationURL+"check&doctorid="+liveUsername;
+					xmlData=check;
+					sendToURL(new URLRequest(check));				
+					checktimerForPatient.start();
+				}else{
+					var add:String=informationURL+"add&doctorid="+localSname+"&patientid="+liveUsername;
+					sendToURL(new URLRequest(add));
+					var xml:String=streamStatsXMl+this.liveUsername;					
+					loadXmlData(xml); 
+				}
+		
+				showPopUp(false);
+						
+			}
+			
+			
+			private function loadXmlData(streamStatsXMl:String):void{
+				http_service = new HTTPService();				
+				http_service.url = streamStatsXMl;
+				http_service.resultFormat = "e4x";
+				http_service.addEventListener(ResultEvent.RESULT, resultHandler);
+				http_service.addEventListener(FaultEvent.FAULT, faulthandler);
+				http_service.send();
+			}
+			
+			private function loadXmlDataCheck(streamStatsXMl:String):void{
+				http_serviceCheck = new HTTPService();				
+				http_serviceCheck.url = streamStatsXMl;
+				http_serviceCheck.resultFormat = "e4x";
+				http_serviceCheck.addEventListener(ResultEvent.RESULT, resultHandlerCheck);
+				http_serviceCheck.addEventListener(FaultEvent.FAULT, faulthandler);
+				http_serviceCheck.send();
+			}
+			private function loadXmlForPatient(streamStatsXMl:String):void{
+				http_serviceforPatient= new HTTPService();				
+				http_serviceforPatient.url = streamStatsXMl;
+				http_serviceforPatient.resultFormat = "e4x";
+				http_serviceforPatient.addEventListener(ResultEvent.RESULT, resultHandlerForPatient);
+				http_serviceforPatient.addEventListener(FaultEvent.FAULT, faulthandler);
+				http_serviceforPatient.send();
+			}
+			
+			/**
+			 * XMl result handler for parsing xml after loading.
+			 * @private
+			 * @void
+			 */
+			private function showAlert():void {
+				
+				/* alert= new MessagePopUp(); //Alert.show("Please wait for the other party to join your scheduled teleconference.","Alert!");	
+				alert.messageTxt.text="Please wait for the other party to join your scheduled teleconference." */
+				alert = PopUpManager.createPopUp(this, MessagePopUp, true) as MessagePopUp;
+				alert.messageTxt.text="Please wait for the other party to join your scheduled teleconference."
+				PopUpManager.centerPopUp(alert);
+			   // PopUpManager.createPopUp(this,MessagePopUp,false);
+				
+			}
+			
+			private function resultHandler(evt:ResultEvent):void{
+				if(evt.result!=null){
+					xmlList= XML(evt.result);
+					//Alert.show(xmlList.data.publisher.toString());
+					if(xmlList.data.publisher.toString()==""){
+						showAlert();						
+					    checktimer.start();
+					}else {
+						if(xmlList.data.subscribers.toString()==""){
+							
+								showsubscribers.init();	
+								checktimerForPatient.stop();
+								closeAlert();
+								ChecksubscriberStream=true;
+								if(webCamOn==true){
+									minuteTimer.start();
+								}
+								
+						}else{	
+							showAlert();										
+							checktimer.start();
+						}
+					}
+					
+				}
+				
+				showpublisher.initPublisher();
+				
+			}
+			
+			
+			private function resultHandlerForPatient(evt:ResultEvent):void{
+				if(evt.result!=null){
+					var xmlList:XML= XML(evt.result);
+					trace("Print XML:"+xmlList);
+				
+					currentPatientId=xmlList.@patientid.toString();
+					//Alert.show("CHECK currentPatientId"+currentPatientId);
+					
+					if(currentPatientId==localSname){
+						if(FlagchecktimerForPatient==false){
+						var xml:String=streamStatsXMl+this.liveUsername;					
+						loadXmlData(xml); 
+						FlagchecktimerForPatient=true;
+						}
+					}else{
+					    if(FlagchecktimerForPatient==false){
+							showAlert();						
+						checktimer.start();
+						showpublisher.initPublisher();
+						FlagchecktimerForPatient=true;
+						}
+					}
+		
+					
+				}
+				
+			
+				
+			}
+			
+			private function resultHandlerCheck(evt:ResultEvent):void{
+				if(evt.result!=null){
+					xmlListCheck= XML(evt.result);
+					//trace(xmlListCheck);
+					if(xmlListCheck.data.publisher.toString()==""){
+						trace("unavailable");
+					}else {
+						if(xmlListCheck.data.subscribers.toString()==""){
+							if(userType=="doc"){
+								showsubscribers.init();								
+								checktimer.stop();
+								closeAlert();
+								ChecksubscriberStream=true;
+								if(webCamOn==true){
+									minuteTimer.start();
+								}
+							}else{
+								//Alert.show("currentPatientId: "+currentPatientId+" localSname: "+localSname);
+								if(currentPatientId==localSname){
+									showsubscribers.init();								
+									checktimer.stop();								
+									checktimerForPatient.stop();
+									closeAlert();
+									ChecksubscriberStream=true;
+									if(webCamOn==true){
+										minuteTimer.start();
+									}
+									
+								}else{
+									//checktimer.start();
+								}
+							}
+						}else{
+							
+							trace("unavailable");
+						}
+					}
+					
+				}
+				
+				
+				
+			}
+			
+			
+			
+			private function faulthandler(event:FaultEvent):void{
+				//Alert.show("XML not recieved "+event.type+"("+event.fault.faultString+")");
+				//checktimerForPatient.stop();
+			}
+			
+		
+			
+		
+			private function onTick(event:TimerEvent):void {
+				if (ss>59) {
+					ss=0;
+					mm++;
+				}
+				_SS = (((ss.toString()).length)< 2)?('0'+ss.toString()):ss.toString();
+				_MM = (((mm.toString()).length)< 2)?('0'+mm.toString()):mm.toString();
+				lblTimer.text = (_MM+":"+_SS);
+				ss++;
+			}
+			
+			
+			private function onVolumeChange():void
+			{
+				if(hVolume.value == 0)
+				{
+					btnMute.styleName = "butonUnMute";
+				}
+				else
+				{
+					btnMute.styleName = "butonMute";
+				}
+				setVolume();
+			}
+			
+			private function onMute():void
+			{
+				if(btnMute.styleName == "butonMute")
+				{
+					hVolume.value = 0;
+				}
+				else
+				{
+					hVolume.value = 1;
+				}
+				onVolumeChange();
+			}
+			
+			private function setVolume():void {
+				var sT : SoundTransform = new SoundTransform((hVolume.value),0);
+				if (showsubscribers !=null && showsubscribers.ns != null ) {
+				showsubscribers.ns.soundTransform=sT;
+				}
+			}
+			
+		
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<mx:RadioButtonGroup id="rbg"/>
+	</fx:Declarations>
+	
+	<mx:Canvas width="500" height="327" styleName="hboxBackgroundImage"  id="maincanvas">		
+		<mx:HBox width="500" height="300" horizontalAlign="center" verticalAlign="middle"    >
+			<ns1:Viewers id="showsubscribers"  borderColor="black"  backgroundColor="#104E8B" borderStyle="solid"  >
+			</ns1:Viewers>
+			<ns1:Publishers  id="showpublisher"  borderColor="black"  backgroundColor="#104E8B" borderStyle="solid" >
+			</ns1:Publishers>			
+		</mx:HBox>
+		<mx:Label x="206" y="293" id="lblTimer" width="69" fontFamily="Arial" fontSize="18" color="#ffffff" textAlign="center" text="00:00"/>
+		<mx:Button x="356" y="295" styleName="butonMute" id="btnMute" width="27" height="27" click="onMute()"/>
+		<mx:HSlider x="389" id="hVolume" styleName="volumeSlider" sliderThumbClass="com.BigThumbClass" liveDragging="true" showDataTip="false" change="onVolumeChange()" y="294" value="0.9" minimum="0" snapInterval="0.1" maximum="1" width="97"/>
+	</mx:Canvas>
+	
+	<mx:VBox id="doctorPopup" paddingLeft="12" paddingTop="12" visible="false" includeInLayout="false" paddingRight="12" paddingBottom="12" width="480" height="315" verticalCenter="0" horizontalCenter="0" backgroundColor="#ffffff" borderStyle="solid" cornerRadius="12" borderColor="#898B8D" >
+		<mx:HBox width="100%" height="22">
+			<mx:Label text="Please Select Provider:" fontFamily="Arial" fontWeight="bold" fontSize="14"/>
+		</mx:HBox>
+		<mx:List id="doctorslist" width="100%" height="100%">
+			<mx:itemRenderer>			
+				<fx:Component>
+					<mx:HBox width="100%" height="24" verticalAlign="middle">
+						<mx:RadioButton label="{data.displayname}" fontFamily="Arial" fontSize="13" click="outerDocument.onItemClick(data)" group="{outerDocument.rbg}" width="100%"/>
+					</mx:HBox>
+				</fx:Component>
+			</mx:itemRenderer>
+		</mx:List>
+		<mx:HBox width="100%" height="31" verticalScrollPolicy="off" horizontalAlign="center" verticalGap="25" verticalAlign="middle">
+			<mx:Button label="Start" horizontalCenter="0" fontFamily="Arial" fontSize="12" fontWeight="bold" enabled="{this.liveUsername != null}" click="onStart()" width="81"/>			
+		</mx:HBox>
+	</mx:VBox>
+	
+	
+	
+</s:Application>
+

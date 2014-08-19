@@ -1,0 +1,1 @@
+<td><input name="selected_clinic" id="selected_clinic" value="<!clinic_id>"  type="radio" /><div style="display:inline;" id="<!clinic_id>"><!clinic_name></div></td>

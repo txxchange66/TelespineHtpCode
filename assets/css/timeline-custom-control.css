@@ -1,0 +1,312 @@
+/*
+TeleSpine Custom Timeline Control
+/* Start Weeks */
+.week-status-btn {
+	border-radius: 120px !important;
+	text-shadow: none;
+	text-align: center !important;
+	padding: 7% 2% !important;
+	cursor: pointer;
+	min-height: 60px;
+	position: relative;
+	-webkit-transition-property: background;
+   -webkit-transition-duration: 0.3s;
+   -webkit-transition-timing-function: ease;
+}
+
+.week-status-btn div.value {
+	font-weight: bold;
+	font-size: 18px;
+	color: #fff;
+	cursor: pointer;
+}
+.status-past-btn {
+	background-color: rgba(199,199,199,0.88) !important;
+}
+.status-present-btn {
+	background-color: rgba(75,203,255,1.00);
+	color: #fff !important;
+}
+.status-future-btn {
+	background-color: #fff !important;
+	color: #555 !important;
+}
+.status-past-btn:hover {
+	background-color: rgba(182,182,182,0.88) !important;
+}
+.status-present-btn:hover {
+	background-color: rgba(35,191,255,1.00);
+	color: #fff !important;
+}
+.status-future-btn:hover {
+	background-color: #EEEEEE !important;
+	color: #555 !important;
+}
+.status-future-btn div.value {
+	font-weight: bold;
+	font-size: 18px;
+	color: #555;
+}
+.status-active-btn {
+	background-color: rgba(230,230,230,0.8) !important;
+}
+.status-past-btn:hover {
+}
+.status-present-btn:hover {
+}
+.status-future-btn:hover {
+	background-color: rgba(248,248,248,1.00);
+}
+.status-active-btn:hover {
+	background-color: rgba(230,230,230,1);
+}
+/* End Weeks */
+.color-black {
+	color: #000 !important;
+	text-align: center !important;
+}
+.rounded-60 {
+	border-radius: 10px !important;
+	text-align: center !important;
+	border: 1px solid rgba(210,210,210,1.00);
+}
+.round {
+	border-radius: 120px !important;
+}
+.dark-grey {
+	color: rgba(255,255,255,0.8);
+	background-color: rgba(102,102,102,0.8);
+}
+.grey {
+	color: rgba(255,255,255,0.8);
+	background-color: rgba(150,150,150,0.7);
+}
+.size12 {
+	font-size: 12px;
+}
+.rounded-30 {
+	border-radius: 30px !important;
+	text-align: center !important;
+}
+.box-grey {
+	background-color: rgba(255,255,255,0.8);
+	text-shadow: 1px 1px 1px rgba(255,255,255,0.96);
+	text-align: center !important;
+	cursor: pointer;
+}
+.box-green {
+	background-color: rgba(75,203,255,1.00);
+	text-shadow: 1px 1px 1px rgba(0,194,33,0.9);
+	text-align: center !important;
+	color: #fff !important;
+	cursor: pointer;
+}
+.box-grey:hover {
+	background-color: rgba(255,255,255,1.00);
+	text-shadow: 1px 1px 1px rgba(255,255,255,0.96);
+	text-align: center !important;
+	cursor: pointer;
+}
+.box-green:hover {
+	background-color: rgba(75,203,255,1.00);
+	text-shadow: 1px 1px 1px rgba(0,194,33,0.9);
+	text-align: center !important;
+	color: #fff !important;
+	cursor: pointer;
+}
+.box-highlight {
+	background-color: rgba(103,194,239,1.00);
+	text-shadow: 1px 1px 3px rgba(0,148,208,0.86);
+	border-radius:60px;
+	text-align: center !important;
+	color: #fff !important;
+	font-weight:bold;
+	cursor: pointer;
+}
+.red-highlight {
+	background-color: rgba(250,96,61,0.8);
+	text-shadow: 1px 1px 3px rgba(250,96,61,1.00);
+	border-radius:60px;
+	text-align: center !important;
+	color: #fff !important;
+	font-weight:bold;
+	cursor: pointer;
+}
+
+.chart-stat{
+	background-color:#eee; 
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f9f9f9), to(#eee));
+	background: -webkit-linear-gradient(top, #f9f9f9, #eee);
+	background: -moz-linear-gradient(top, #f9f9f9, #eee);
+	background: -ms-linear-gradient(top, #f9f9f9, #eee);
+	border-radius:8px;
+	box-shadow:inset 1px 2px 3px rgba(102,102,102,0.08);
+	width:100%;margin-top:8px;padding:8px;
+	cursor: pointer;
+}
+.week-routine {
+}
+.week-status {
+	border: 2px solid rgba(210,210,210,0.4);
+	display: none;
+	min-height: 60px;
+	border-radius: 10px !important;
+	box-shadow:0px 0px 10px #ddd;
+	-webkit-transition-property: box-shadow;
+   -webkit-transition-duration: 0.9s;
+   -webkit-transition-timing-function: ease;
+	cursor: pointer;
+}
+.week-status:hover {
+	box-shadow:0px 40px 120px #666;
+}
+.intro {
+	margin-bottom: 22px;
+}
+/* horizontal week-tl */
+.week-text {
+	position: absolute;
+	top: 5px;
+	left: 5px;
+	text-align: left;
+	color: #fff;
+	font-weight: bold;
+	font-size: 16px;
+	padding: 8px;
+	background-color: rgba(153,153,153,0.50);
+	border-radius: 4px;
+	text-shadow:0px 1px 3px rgba(102,102,102,0.2);
+	/*box-shadow: 0px 0px 6px rgba(153,153,153,0.65);*/
+}
+.week-tl {
+	overflow: scroll;
+	border-radius: 30px;
+	background: url(../img/week-timeline-bg.png) rgba(255,255,255,1.00) repeat-x;
+	border: 3px solid rgba(200,200,200,0.75);
+	display: none;
+	margin-top: 0px;
+	margin-bottom: 20px;
+	position: relative;
+}
+.week-tl-box {
+	position: absolute;
+	top: 25px;
+	left: 12%;
+	width: 20%;
+	height: 150px;
+	cursor:pointer;
+}
+.week-tl-box-bottom {
+	position: absolute;
+	top: 150px;
+	left: 20%;
+	width: 20%;
+	height: 150px;
+}
+.week-tl-top-box, .week-tl-bottom-box {
+	border-radius: 8px !important;
+	width: 100%;
+	height: 110px;
+	/*background-color: rgba(75,203,255,0.05);*/
+	background-color: rgba(51,51,51,0.05);
+	color:#777;
+	position: absolute;
+	left: 32px;
+	font-size: 12px;
+	padding: 2px 6px;
+	overflow:scroll;
+	cursor: pointer;
+}
+.week-tl-top-box {top: 0px;}
+.week-tl-bottom-box {bottom: 0px;}
+.week-tl-top-box b, .week-tl-bottom-box b {
+	font-family:Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color: rgba(0,0,0,0.60);
+	font-weight: bold !important;
+}
+.week-tl-flag-text {
+	position: absolute;
+	bottom: 70px !important;
+	left: -4px !important;
+	font-size: 12px;
+	transform: rotate(-90deg);
+	-ms-transform: rotate(-90deg); /* IE 9 */
+	-webkit-transform: rotate(-90deg); /* Safari and Chrome */
+	color: #fff;
+	text-shadow: 0px 1px 3px rgba(75,203,255,0.76);
+	overflow: hidden;
+	text-align:center;
+}
+.week-tl-top-flag {
+	border-radius: 30px !important;
+	width: 26px;
+	height: 150px;
+	background-color: rgba(75,203,255,0.78);
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+.week-tl-top-flag-bottom {
+	border-radius: 8px 8px 30px 30px !important;
+	width: 26px;
+	height: 150px;
+	background-color: rgba(75,203,255,0.78);
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+.week-tl-bottom-flag {
+	border-radius: 30px !important;
+	width: 26px;
+	height: 150px;
+	background-color: rgba(75,203,255,0.78);
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+}
+.week-tl-top-flag:hover {
+	box-shadow:0px 0px 20px #bbb;
+}
+.week-tl-bottom-flag:hover {
+	box-shadow:0px 0px 20px #bbb;
+}
+.week-tl-top-flag-li {
+	position: absolute;
+	bottom: -4px !important;
+	left: -6px !important;
+	width: 34px;
+	height: 34px;
+	display: block;
+	background-color: rgba(255,255,255,0.75) !important;
+	border: 4px solid rgba(75,203,255,1);
+	margin: 2px;
+	border-radius: 30px !important;
+	text-align: center;
+	vertical-align: middle;
+	font-size: 14px;
+	padding:4px;
+	color: rgba(0,124,174,1.00);
+	test-shadow:0px 0px 3px #fff;
+	box-shadow:0px 0px 4px rgba(255,255,255,0.75);
+}
+.week-tl-bottom-flag-li {
+	position: absolute;
+	top: -4px !important;
+	left: -6px !important;
+	width: 34px;
+	height: 34px;
+	display: block;
+	background-color: rgba(255,255,255,0.75) !important;
+	border: 4px solid rgba(75,203,255,1);
+	margin: 2px;
+	border-radius: 30px !important;
+	text-align: center;
+	vertical-align: middle;
+	padding:4px;
+	font-size: 14px;
+	color: rgba(0,124,174,1.00);
+	test-shadow:0px 0px 3px #fff;
+	box-shadow:0px 0px 4px rgba(255,255,255,0.75);
+}
+

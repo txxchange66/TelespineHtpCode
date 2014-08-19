@@ -1,0 +1,184 @@
+﻿/***********************************************/
+/* CSS Document by HyTech Professionals        */
+/***********************************************/
+body{margin: 0px;padding: 0px;  color:#333333; font-family:Verdana; font-size:12px !important;}
+ table tr td{font-family:Verdana; font-size:12px !important;}
+/******* hyperlink and anchor tag styles *******/
+a {text-decoration: none;color:#444444;}
+a:hover{color:#fa0303;}
+.cl{clear:both;}
+
+/************** header tag styles **************/
+
+h1{
+	margin: 0px;
+	padding: 0px;
+	color:#017fca;
+	font-family:Verdana;
+	font-size:26px;
+    font-weight: normal;
+    text-align:center;
+    line-height:50px;
+}
+
+h2{
+	margin: 0px;
+	padding: 0px;
+	color:#333333;
+	font-family:Verdana;
+	font-size:14px;
+    font-weight: bold;
+    text-align:center;
+    padding-top:15px;
+    
+ 
+}
+
+h3{
+	margin: 0px;
+	padding: 0px;
+	color:#333333;
+	font-family:Verdana;
+	font-size:13px;
+    font-weight: bold;
+    margin-top:15px;
+    line-height:28px;
+    background:#eeeeee;
+    padding-left:10px;
+}
+
+h4{
+	margin: 0px;
+	padding: 0px;
+	color:#333333;
+	font-family:Verdana;
+	font-size:13px;
+    font-weight: bold;
+   
+    line-height:28px;
+    background:#eeeeee;
+    padding-left:10px;
+}
+
+h5{
+	font: 100% Arial, Helvetica, sans-serif;
+	margin: 0px;
+	padding: 0px;
+	color:#444444;
+	font-weight: bold;
+}
+h6{
+	font: 100% Arial, Helvetica, sans-serif;
+	margin: 0px;
+	padding: 0px;
+	color:#8a8a8a;
+	font-weight: bold;
+	width:95%; 
+}
+/*************** list tag styles ***************/
+
+ul{ list-style-type:square;}
+ul ul{list-style-type: disc;}
+ul ul ul{list-style-type: none;}
+
+/********* form and related tag styles *********/
+form {margin: 0;padding: 0;}
+label{}
+input[type=text] {}
+input[type=password] {}
+select {}
+input[type=submit] {}
+input[type=radio] {vertical-align: middle; margin: 0;  }
+input[type=checkbox] {vertical-align: middle; margin: 0; }
+/***********************************************/
+/* Layout Divs                                 */
+/***********************************************/
+.wrapper{width:915px; margin:0 auto; #padding-left:15px;  *padding-left:15px; _padding-left:15px;}
+
+.paging{background:#017fca; height:27px; padding-top:6px;}
+.paging-num{float:left; width:110px; margin-left:10px; background:url('../images/img-paging-order.jpg') no-repeat; height:22px; color:#017fca; padding-top:3px; padding-left:3px;}
+
+.paging-rgt{float:left;}
+.paging ul{ list-style:none; margin:0; padding:0;}
+.paging ul li{ float:left; background:url('../images/img-paging.jpg') no-repeat; width:30px; height:22px; padding-right:5px; padding-top:3px; text-align:center; }
+.paging ul li a{ color:#017fca;}
+.paging ul li.selected{background:url('../images/img-paging-sel.jpg') no-repeat; width:30px; height:22px; }
+.paging ul li.selected a{ color:#fff;}
+.paging ul li a:hover {text-decoration:none;}
+
+.paging1{background:#017fca; height:27px; padding-top:6px;}
+.paging1-num{float:left; width:110px; margin-left:10px; background:url('../images/img-paging-order.jpg') no-repeat; height:22px; color:#017fca; padding-top:3px; padding-left:3px;}
+
+.paging1-rgt{float:left;}
+.paging1 ul{ list-style:none; margin:0; padding:0;}
+.paging1 ul li{ float:left; background:url('../images/img_paging_disable.jpg') no-repeat; width:30px; height:22px; padding-right:5px; padding-top:3px; text-align:center; }
+.paging1 ul li a{ color:#017fca;  cursor: default !important;}
+.paging1 ul li.selected{background:url('../images/img-paging-sel.jpg') no-repeat; width:30px; height:22px; }
+.paging1 ul li.selected a{ color:#fff;}
+.paging1 ul li a:hover {text-decoration:none; cursor: default !important;}
+
+.form1-name{}
+.form1-name tr td{ padding:5px 0px 5px 0px; font-size: 12px;}
+.form1-name tr td input{ width:217px;}
+.form1-name tr td input.check{ width:auto;}
+.form1-name tr td input.small{ width:117px; margin-right:25px;}
+.form1-name tr td.radio input{ width:auto;}
+.form1-name tr td select { width:221px;}
+.form1-name tr td select.month { width:83px;}
+.form1-name tr td select.date { width:60px;}
+.form1-name tr td select.year { width:70px;}
+.form1-name tr td select.years { width:70px;}
+.form1-name tr td textarea{width:217px;}
+.form1-status tr td{ padding:5px 0px 5px 0px; font-size: 12px;}
+
+.form-footer{padding:25px 0 15px 0; border-bottom:2px solid #d9d9d9; margin-bottom:10px;}
+
+.form2-name{}
+.form2-name tr td{ padding:5px 0px 5px 0px;}
+.form2-name tr td input{ width:470px;}
+.form2-status tr td{ padding:5px 0px 5px 0px;}
+
+
+.form3 tr td{ padding:5px 0px 5px 0px;}
+.form3-bot tr td{ padding:5px 0px 5px 0px;}
+.form3-bot tr td input{ width:470px;}
+.form3-bot tr td.radio input{ width:auto;}
+.form3-bot tr td textarea{ width:300px; height:70px;}
+
+
+.form4-history tr td{ padding:5px 0px 5px 0px;}
+.form4-history tr td textarea{ width:300px; height:70px;}	
+.form4-hospital tr td{ padding:5px 0px 5px 0px;}
+.form4-hospital tr td input{ width:300px;}
+.form4-hospital tr td select.year{width:70px;}
+.form4-otc tr td{ padding:5px 0px 5px 0px;}
+.form4-otc tr td input{ width:380px;}
+
+.form5 tr td{ padding:5px 0px 5px 0px;}
+.form5 tr td input{ width:85px; }
+.form5-habits tr td{ padding:5px 0px 5px 0px;}
+.form5-habits tr td input{ width:300px;}
+.form5-habits tr td.radio input{ width:auto;}
+.form5-condition{border-bottom:1px solid #d9d9d9; border-top:1px solid #d9d9d9; color:#017fca; line-height:30px; font-weight:bold;}
+
+#msg{display:none;position:absolute;}
+/*#msg span{ font-size:10px;   color:#000; 
+background:none repeat scroll 0 0 #F3E6E6;
+border-color:#924949 #924949 #924949 -moz-use-text-color;
+border-style:solid solid solid none;
+border-width:2px 2px 2px medium;
+display:block;
+max-width:250px;
+min-width:150px;
+padding:5px;
+
+}
+*/
+.top-Name{ font-family:Arial, Helvetica, sans-serif; font-size:25px; color:#222;}
+.date{font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#222; line-height:20px; font-weight:bold;}
+
+
+
+
+
+

@@ -1,0 +1,1 @@
+<input type="image" src="/images/btn-finish.jpg"' value="Assign Template" onClick="window.location.href='index.php?action=therapistViewPatient&id=<!patient_id>'" />

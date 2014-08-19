@@ -1,0 +1,22 @@
+<treatments total="53" page="1" of="3">
+<sql><![CDATA[ SELECT treatment.* FROM treatment JOIN treatment_category AS Q1 ON Q1.treatment_id = treatment.treatment_id WHERE  status = 1 AND 
+							(clinic_id = '164' OR clinic_id IS NULL) 
+					     AND Q1.category_id = 42 ORDER BY treatment_name ASC LIMIT 18 ]]></sql>	<treatment id="131" tname="16May" pic="/asset/images/treatment/131/thumb.jpg"  />
+	<treatment id="156" tname="17may" pic="/asset/images/treatment/156/thumb.jpg"  />
+	<treatment id="167" tname="17May1" pic="/asset/images/treatment/167/thumb.jpg"  />
+	<treatment id="80" tname="a0" pic="/asset/images/treatment/80/thumb.jpg"  />
+	<treatment id="61" tname="abc treatment1212131231312232312312312312312312312" pic="/asset/images/treatment/61/thumb.jpg"  />
+	<treatment id="63" tname="abcd treatment" pic="/asset/images/treatment/63/thumb.jpg"  />
+	<treatment id="21" tname="add treatment1" pic="/asset/images/treatment/21/thumb.jpg"  />
+	<treatment id="88" tname="anubha test1" pic="/asset/images/treatment/88/thumb.jpg"  />
+	<treatment id="82" tname="anubha&#039;s for treatment" pic="/asset/images/treatment/82/thumb.jpg"  />
+	<treatment id="166" tname="ashish" pic="/asset/images/treatment/166/thumb.jpg"  />
+	<treatment id="28" tname="Ashish Test" pic="/asset/images/treatment/28/thumb.jpg"  />
+	<treatment id="30" tname="Ashish Test 2" pic="/asset/images/treatment/30/thumb.jpg"  />
+	<treatment id="29" tname="Ashish Test A" pic="/asset/images/treatment/29/thumb.jpg"  />
+	<treatment id="52" tname="Ashish1" pic="/asset/images/treatment/52/thumb.jpg"  />
+	<treatment id="190" tname="aug20 test2 again an new test" pic="/asset/images/treatment/190/thumb.jpg"  />
+	<treatment id="44" tname="back pain" pic="/asset/images/treatment/44/thumb.jpg"  />
+	<treatment id="153" tname="body" pic="/asset/images/treatment/153/thumb.jpg"  />
+	<treatment id="17" tname="BP Treatment" pic="/asset/images/treatment/17/thumb.jpg"  />
+</treatments>
